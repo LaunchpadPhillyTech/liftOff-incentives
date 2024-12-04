@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="\r?\n---\r?\n" data-separator-vertical="\r?\n----\r?\n">
+          <textarea data-template>
+            **Instructions for Creating a Node.js + MySQL Database Connection**
+
+**Project Setup**
+
+1. **Initialize Project:**
+   - Create a new directory for your project.
+   - Open a terminal in this directory and run `npm init` to initialize a Node.js project.
+
+2. **Install Dependencies:**
+   - Install the required packages using npm:
+     ```bash
+     npm install mysql2 sequelize nodemon dotenv
+     ```
+
+---
+
+**Database Configuration**
+
+3. **Create `.env` File:**
+   - In your project root, create a `.env` file to store your database credentials:
+     ```dotenv
+     DB_HOST=localhost
+     DB_USER=your_mysql_username
+     DB_PASSWORD=your_mysql_password
+     DB_NAME=finTech
+     PORT=
+     ```
+     * Replace `your_mysql_username` and `your_mysql_password` with your actual MySQL credentials.
+
+---
+
+4. **Database Creation:**
+   - Use a MySQL client MySQL Workbench to create a database named `finTech`.
+
+----
+
+**Node Models and Sequelize Setup**
+
+5. **Create Models:**
+   - In your project directory, create a `models` folder.
+   - Inside this folder, create two files: `user.js` and `transaction.js`.
+   - Define your Sequelize models in these files. For example, in `user.js`:
+     ```javascript
+      import { DataTypes } from 'sequelize';
+      import sequelize from '../config/database'; 
+
+     const User = sequelize.define('User', {
+       // Define user attributes (e.g., id, username, email, password_hash, balance)
+       name: {
+         type: DataTypes.STRING,
+         allowNull: false
+       },
+       // ... other attributes
+     });
+
+     module.exports = User;
+     ```
+   - Similarly, define the `Transaction` model in `transaction.js`.
+   - Define transaction models: id, amount, type, desctip, user_id
+
+---
+
+6. **Database Connection:**
+   - Create a `config` folder in your project directory.
+   - Inside `config`, create a file named `database.js`:
+     ```javascript
+      import { Sequelize } from 'sequelize';
+      import 'dotenv/config'; 
+
+     const sequelize = new Sequelize(
+       process.env.DB_NAME,
+       process.env.DB_USER,
+       process.env.DB_PASSWORD,
+       {
+         host: process.env.DB_HOST,
+         dialect: process.env.DB_DIALECT
+       }
+     );
+
+     module.exports = sequelize;
+     ```
+
+---
+
+7. **Model Associations:**
+   - The User models will have relationships (e.g., a User has many Transactions), with the Transaction model, define these associations in your model files using Sequelize's association methods.
+
+---
+
+**Node.js Application**
+
+8. **Create Application Routes:**
+   - Create a `routes` folder.
+   - Inside `routes`, create a file named `index.js`.
+   - Define your routes using Express.js (you'll need to install Express):
+     ```javascript
+       import express from 'express';
+       const router = express.Router();
+
+     router.get('/', (req, res) => {
+       // Dashboard logic (fetch data, render view)
+     });
+
+     router.get('/transactions', (req, res) => {
+       // Transaction history logic (fetch data, render view)
+     });
+
+     module.exports = router;
+     ```
+
+----
+
+9. **Main Application File:**
+   - Create a `server.js` (or `app.js`) file in your project root.
+   - Set up your Express application, connect to the database, and use your routes:
+     ```javascript
+      import express from 'express';
+      import sequelize from './config/database';
+      import routes from './routes';
+
+     // Test database connection
+     sequelize.authenticate()
+       .then(() => console.log('Database connected'))
+       .catch(err => console.log('Error connecting to database:', err));
+
+     app.use('/', routes); 
+
+     const PORT = process.env.PORT || 3000;
+     app.listen(PORT, () => {
+       console.log(`Server running on port ${PORT}`);
+     });
+     ```
+
+---
+
+10. **Run the Application:**
+    - Use nodemon to automatically restart the server on changes:
+      ```bash
+      nodemon server.js
+      ```
+
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"_":[],"static":"./docs"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
