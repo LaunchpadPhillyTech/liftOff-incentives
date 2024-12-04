@@ -11,3 +11,5 @@ src/
 .global-prompt.md
 favicon.ico
 *.md
+package.json
+package-lock.json
